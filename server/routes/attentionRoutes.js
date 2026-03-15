@@ -1,9 +1,9 @@
 const express = require("express");
 const route = express.Router();
 
-const {driverinfo} = require ("../controller/attentionController");
+const {driverInfo} = require ("../controller/attentionController");
 
-route.post("/driver-event",driverinfo); 
+route.post("/driver-event",driverInfo); 
  
 
 

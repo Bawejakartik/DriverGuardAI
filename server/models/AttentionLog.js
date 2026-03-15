@@ -11,13 +11,22 @@ const driverAttentionSchema  = mongoose.Schema({
     face_detected:{
         type :Boolean,
     },
+    driverStatus:{
+           type :String, 
+           enum : ["SAFE","DROWSY","SLEEPING"]
+
+    },
     eyeStatus:{
         type:String,
         enum:["open","closed"],
     },
-    earValue:{
-        type:Number,
-        default:0 
+    // earValue:{
+    //     type:Number,
+    //     default:0 
+    // }
+    time:{
+        type : Date ,
+        default : Date.now
     }
 })
 

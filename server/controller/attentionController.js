@@ -3,29 +3,36 @@ const express = require("express");
 const DriverEvent = require("../models/AttentionLog");
 
 
-exports.driverinfo = async(req,res) => {
-     
-    try {
-       const event = new DriverEvent(req.body);
+exports.driverInfo = async(req, res) => {
 
-       console.log(event); 
-       
-        
-       await event.save(); 
+    try{
+        const {driverStatus} = req.body ; 
 
+        const lastEvent = await DriverEvent.findOne().sort({time: -1});
 
-       res.status(200).json({
-        success:true,
-        message : "Driver data stored successfully "
-       })
+        if(lastEvent && lastEvent.driverStatus === driverStatus){
+            return res.status(200).json({
+                success: true, 
+                message:"No status change , not saved  "
+            })
+        }
+        const event = new DriverEvent(req.body);
+         
+        await event.save();
 
+        console.log("New Event Stored ",event ); 
+
+        res.status(200).json({
+            success:true,
+            message:"Driver event stored"
+        })
     }
     catch(err){
         console.log(err);
-        return res.status(501).json({
-            success:false, 
-            message:"Server Error",
-        })
+        return res.status(500).json({
+            success:false,
+            message:"server error "
+        }
+        )
     }
-
 }
