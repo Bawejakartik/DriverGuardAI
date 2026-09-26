@@ -1,16 +1,32 @@
-# React + Vite
+# DriverGuard AI — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite frontend for DriverGuard AI. Integrates with:
+- the existing Node.js/Express backend (`server/`) for auth, vehicles, sessions, dashboard, and event persistence (HTTP-only cookie auth)
+- the existing Python Flask + Socket.IO AI engine (`DriverDrowsinessDetection/app.py`) for the live camera feed and real-time EAR/MAR/head-pose metrics
 
-Currently, two official plugins are available:
+## Setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+cp .env.example .env   # adjust URLs if your backend/AI engine run elsewhere
+npm install
+npm run dev
+```
 
-## React Compiler
+Defaults (from `.env.example`):
+- `VITE_API_URL=http://localhost:4000/api/v8` (Node backend)
+- `VITE_AI_URL=http://localhost:5000` (Python AI engine — camera stream + Socket.IO metrics)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Running the full stack
 
-## Expanding the ESLint configuration
+1. Start MongoDB, then the Node backend: `cd server && npm run dev` (port 4000)
+2. Start the Python AI engine: `cd DriverDrowsinessDetection && python app.py` (port 5000)
+3. Start this frontend: `npm run dev` (port 5173)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## App flow
+
+Signup → Login → Dashboard → Vehicles → Live Drive (start session → connect to AI engine → live camera + metrics + alerts → stop session) → Session Report → History → Profile → Logout.
+
+## Notes
+
+- Auth uses the backend's HTTP-only `Token` cookie (`withCredentials: true`) — no tokens are stored in `localStorage`.
+- The Live Drive page only persists driver-status events the backend's `attentionController` actually understands (`ALERT`, `EYES CLOSED`, `DROWSY`, `YAWNING`, `HEAD NODDING`). Other live statuses emitted by the AI engine (e.g. `FATIGUE TREND`, `NO FACE`) are still shown in the UI but not written to the database, since the backend has no matching event type for them.
